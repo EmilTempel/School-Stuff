@@ -22,7 +22,7 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 	FiniteAutomaton automaton;
 
 	State dragged, connect;
-	Point dragged_point;
+	Point dragged_point, connect_point;
 
 	public Gui(int width, int height) {
 		frame = new JFrame();
@@ -48,13 +48,14 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
+		if (connect != null) {
+			connect.connectTo(g2, new Vector(connect_point.getX(), connect_point.getY()), "");
+		}
 		automaton.paint(g2);
 		if (dragged != null) {
 			dragged.draw(g2);
 		}
-		if(connect != null) {
-			
-		}
+		
 		repaint();
 	}
 
@@ -95,21 +96,13 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 	public static void addVector(Polygon p, Vector v) {
 		p.addPoint((int) v.x(0), (int) v.x(1));
 	}
-	
+
 	public static Point getPointFrom(Vector v) {
-		return new Point((int)v.x(0), (int)v.x(1));
+		return new Point((int) v.x(0), (int) v.x(1));
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		State s = automaton.StateAt(e.getPoint());
-		if (s != null) {
-			if (connect == null) {
-				connect = s;
-			} else {
-				automaton.addEdge(connect, s, "");
-				connect = null;
-			}
-		}
+
 	}
 
 	public void mouseEntered(MouseEvent arg0) {
@@ -125,9 +118,13 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		if (s != null) {
 			switch (e.getButton()) {
 			case MouseEvent.BUTTON1:
-				dragged = s;
-				dragged_point = new Point(dragged.getX() - e.getX(), dragged.getY() - e.getY());
-
+				if (e.isControlDown()) {
+					connect = s;
+					connect_point = new Point(e.getX(), e.getY());
+				} else {
+					dragged = s;
+					dragged_point = new Point(dragged.getX() - e.getX(), dragged.getY() - e.getY());
+				}
 				break;
 			case MouseEvent.BUTTON2:
 				s.setEnd(!s.isEnd());
@@ -154,9 +151,19 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 
 	}
 
-	public void mouseReleased(MouseEvent arg0) {
+	public void mouseReleased(MouseEvent e) {
+		if(dragged != null) {
 		dragged = null;
 		dragged_point = null;
+		}
+		if(connect != null) {
+			State s = automaton.StateAt(e.getPoint());
+			if(s != null) {
+				automaton.addEdge(connect, s, "");
+			}
+			connect = null;
+			connect_point = null;
+		}
 	}
 
 	public void mouseDragged(MouseEvent e) {
@@ -164,7 +171,9 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 			dragged.setX(e.getX() + dragged_point.x);
 			dragged.setY(e.getY() + dragged_point.y);
 		}
-
+		if(connect != null) {
+			connect_point = e.getPoint();
+		} 
 	}
 
 	public void mouseMoved(MouseEvent e) {

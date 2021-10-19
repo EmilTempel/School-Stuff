@@ -12,7 +12,7 @@ import gui.Gui;
 
 public class State {
 
-	public static final int width = 100, height = 50, d = 3, arc = 15, stroke = 2, size = 20;
+	public static final int width = 100, height = 50, d = 3, arc = 15, stroke = 2,arrow_stroke = 4, size = 20;
 
 	String name;
 	boolean start, end;
@@ -75,20 +75,27 @@ public class State {
 				y + height / 2 + (int) (size / 3));
 
 		if(start) {
-			Gui.drawArrow(g, x-50, y + height/2, x, y + height/2, 4);
+			Gui.drawArrow(g, x-50, y + height/2, x, y + height/2, arrow_stroke);
 		}
 	}
 
 	public void connectTo(Graphics2D g,State s, String connection) {
+		if(!this.equals(s)) {
 		Vector r = Vector.add(s.mid(), Vector.mult(mid(),-1));
 		
-		Gui.drawArrow(g, getPointIn(r), s.getPointIn(Vector.mult(r, -1)), 4);
+		Gui.drawArrow(g, getPointIn(r), s.getPointIn(Vector.mult(r, -1)), arrow_stroke);
+		}else {
+			g.setStroke(new BasicStroke(arrow_stroke));
+			g.drawLine(x + width/4, y, x + width/4, y - height/4);
+			g.drawLine(x + width/4, y - height/4,x + width *3/4, y-height/4);
+			Gui.drawArrow(g,x + width *3/4, y-height/4,x + width *3/4, y, arrow_stroke);
+		}
 	}
 	
 	public void connectTo(Graphics2D g, Vector v, String connection) {
 		Vector r = Vector.add(v, Vector.mult(mid(),-1));
 		
-		Gui.drawArrow(g, getPointIn(r), Gui.getPointFrom(v), 4);
+		Gui.drawArrow(g, getPointIn(r), Gui.getPointFrom(v), arrow_stroke);
 	}
 
 	public Point getPointIn(Vector r) {
