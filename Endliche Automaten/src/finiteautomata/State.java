@@ -12,13 +12,13 @@ import gui.Gui;
 
 public class State {
 
-	static final int width = 100, height = 50, d = 3, arc = 15, stroke = 2, size = 20;
+	public static final int width = 100, height = 50, d = 3, arc = 15, stroke = 2, size = 20;
 
 	String name;
-	boolean end;
+	boolean start, end;
 	int x, y;
 
-	public State(String name, boolean end) {
+	public State(String name, boolean start, boolean end) {
 		this(name, end, 0, 0);
 	}
 
@@ -27,6 +27,10 @@ public class State {
 		this.end = end;
 		this.x = x;
 		this.y = y;
+	}
+	
+	public void setStart(boolean start) {
+		this.start = start;
 	}
 	
 	public void setEnd(boolean end) {
@@ -70,12 +74,21 @@ public class State {
 		g.drawString(name, (x + width / 2) - (int) ((double) name.length() / (double) 3 * size),
 				y + height / 2 + (int) (size / 3));
 
+		if(start) {
+			Gui.drawArrow(g, x-50, y + height/2, x, y + height/2, 4);
+		}
 	}
 
 	public void connectTo(Graphics2D g,State s, String connection) {
 		Vector r = Vector.add(s.mid(), Vector.mult(mid(),-1));
 		
-		Gui.drawArrow(g, getPointIn(r), s.getPointIn(Vector.mult(r, -1)), 5);
+		Gui.drawArrow(g, getPointIn(r), s.getPointIn(Vector.mult(r, -1)), 4);
+	}
+	
+	public void connectTo(Graphics2D g, Vector v, String connection) {
+		Vector r = Vector.add(v, Vector.mult(mid(),-1));
+		
+		Gui.drawArrow(g, getPointIn(r), Gui.getPointFrom(v), 4);
 	}
 
 	public Point getPointIn(Vector r) {

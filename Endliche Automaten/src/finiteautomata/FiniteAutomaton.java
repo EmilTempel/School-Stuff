@@ -18,6 +18,8 @@ public class FiniteAutomaton {
 	}
 
 	public void setStartState(int start_state) {
+		states[this.start_state].setStart(false);
+		states[start_state].setStart(true);
 		this.start_state = start_state >= 0 ? start_state : 0 < states.length ? start_state : states.length;
 	}
 
@@ -39,13 +41,60 @@ public class FiniteAutomaton {
 					matrix[i][j] = new String[0];
 				}
 			}
-
 		}
+		if(states.length == 1)
+			setStartState(0);
+	}
+	
+	public void removeState(int s) {
+		int c = 0; 
+		State[] temp_states = new State[states.length-1];
+		String[][][] temp_matrix = new String[states.length-1][states.length-1][];
+		
+		for(int i = 0; i < states.length; i++) {
+			if(i != s) {
+				temp_states[c] = states[i];
+				int d = 0;
+				for(int j = 0; j < states.length; j++) {
+					if(j != s) {
+						temp_matrix[c][d] = matrix[i][j];
+						d++;
+					}
+				}
+				c++;
+			}
+		}
+		
+		states = temp_states;
+		matrix = temp_matrix;
+	}
+	
+	public void removeState(State s) {
+		int idx = getIndex(s);
+		if(idx != -1) {
+			removeState(idx);
+		}
+	}
+	
+	public int getIndex(State s) {
+		for(int i = 0; i < states.length; i++) {
+			if(s.equals(states[i])) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public void addEdge(int s1, int s2, String c) {
 		if (!contains(matrix[s1][s2], c)) {
 			matrix[s1][s2] = addToArray(matrix[s1][s2], c, String.class);
+		}
+	}
+	
+	public void addEdge(State s1, State s2, String c) {
+		int idx1 = getIndex(s1), idx2 = getIndex(s2);
+		if(idx1 != -1 && idx2 != -1) {
+			addEdge(idx1, idx2, c);
 		}
 	}
 
