@@ -101,6 +101,14 @@ public class FiniteAutomaton {
 	public void removeEdge(int s1, int s2, String c) {
 		matrix[s1][s2] = removeFromArray(matrix[s1][s2], c, String.class);
 	}
+	
+	public void removeEdge(State s1, State s2, String c) {
+		int idx1 = getIndex(s1), idx2 = getIndex(s2);
+		if(idx1 != -1 && idx2 != -1) {
+			matrix[idx1][idx2] = removeFromArray(matrix[idx1][idx2], c, String.class);
+		}
+		
+	}
 
 	public boolean matches(int s, String word) {
 		if (word.equals("")) {

@@ -21,8 +21,8 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 	JFrame frame;
 	FiniteAutomaton automaton;
 
-	State dragged, connect;
-	Point dragged_point, connect_point;
+	State dragged, connect, disconnect;
+	Point dragged_point, connect_point, disconnect_point;
 
 	public Gui(int width, int height) {
 		frame = new JFrame();
@@ -31,6 +31,7 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(this);
 		frame.setLayout(null);
+		
 
 		this.setLocation(0, 0);
 		this.setSize(width, height);
@@ -50,6 +51,9 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		Graphics2D g2 = (Graphics2D) g;
 		if (connect != null) {
 			connect.connectTo(g2, new Vector(connect_point.getX(), connect_point.getY()), "");
+		}
+		if (disconnect != null) {
+			disconnect.connectFrom(g2, new Vector(disconnect_point.getX(), disconnect_point.getY()), "");
 		}
 		automaton.paint(g2);
 		if (dragged != null) {
@@ -130,14 +134,22 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 				s.setEnd(!s.isEnd());
 				break;
 			case MouseEvent.BUTTON3:
-				automaton.removeState(s);
+				if (e.isControlDown()) {
+					disconnect = s;
+					disconnect_point = new Point(e.getX(), e.getY());
+				} else {
+					automaton.removeState(s);
+				}
 				break;
 			}
 
 		} else {
 			switch (e.getButton()) {
 			case MouseEvent.BUTTON1:
-				automaton.addState("", false, e.getX() - State.width / 2, e.getY() - State.height / 2);
+				TextFenster tf = new TextFenster();
+				String str = tf.getText();
+				System.out.println(str);
+				automaton.addState(str, false, e.getX() - State.width / 2, e.getY() - State.height / 2);
 				break;
 			case MouseEvent.BUTTON2:
 
@@ -158,12 +170,22 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		}
 		if(connect != null) {
 			State s = automaton.StateAt(e.getPoint());
+			TextFenster tf = new TextFenster();
 			if(s != null) {
-				automaton.addEdge(connect, s, "");
+				automaton.addEdge(connect, s, tf.getText());
 			}
 			connect = null;
 			connect_point = null;
 		}
+		if(disconnect != null) {
+			State s = automaton.StateAt(e.getPoint());
+			if(s != null) {
+				automaton.removeEdge(disconnect, s, "");
+			}
+			disconnect = null;
+			disconnect_point = null;
+		}
+		
 	}
 
 	public void mouseDragged(MouseEvent e) {
