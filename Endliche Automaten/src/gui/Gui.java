@@ -1,7 +1,9 @@
 package gui;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,8 +13,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import finiteautomata.FiniteAutomaton;
 import finiteautomata.State;
@@ -31,18 +38,25 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		frame.setSize(width, height);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(this);
-		frame.setLayout(null);
-		
 
-		this.setLocation(0, 0);
-		this.setSize(width, height);
+		JTextField tf = new JTextField();
+		tf.setFont(new Font("Calibri" ,Font.CENTER_BASELINE, 40));
+		JButton b = new JButton();
+		b.addActionListener(e -> {
+			JOptionPane.showMessageDialog(null, automaton.matches(tf.getText()), "Does the word satisfy the automaton?", JOptionPane.INFORMATION_MESSAGE);
+			
+		});
+
 		this.setVisible(true);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 
 		automaton = new FiniteAutomaton();
 
+		frame.getContentPane().add(tf, BorderLayout.SOUTH);
+		frame.getContentPane().add(b, BorderLayout.EAST);
+		frame.getContentPane().add(this, BorderLayout.CENTER);
+		SwingUtilities.updateComponentTreeUI(frame);
 	}
 
 	public void setFA(FiniteAutomaton automaton) {
@@ -61,7 +75,7 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		if (dragged != null) {
 			dragged.draw(g2);
 		}
-		
+
 		repaint();
 	}
 
@@ -84,14 +98,14 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		g.drawLine((int) u.x(0), (int) u.x(1), (int) v.x(0), (int) v.x(1));
 		g.fillPolygon(t);
 	}
-	
+
 	public static void drawCenteredString(Graphics2D g, String str, int x, int y) {
 		FontMetrics f = g.getFontMetrics();
-		g.drawString(str, x-f.stringWidth(str)/2, y+(f.getHeight()/3));
+		g.drawString(str, x - f.stringWidth(str) / 2, y + (f.getHeight() / 3));
 	}
-	
+
 	public static void drawCenteredString(Graphics2D g, String str, Point p) {
-		drawCenteredString(g,str, p.x, p.y);
+		drawCenteredString(g, str, p.x, p.y);
 	}
 
 	public static Point getPointOnRect(Vector r, int x, int y, int w, int h) {
@@ -142,7 +156,11 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 				}
 				break;
 			case MouseEvent.BUTTON2:
-				s.setEnd(!s.isEnd());
+				if (!e.isControlDown()) {
+					s.setEnd(!s.isEnd());
+				} else {
+					automaton.setStartState(s);
+				}
 				break;
 			case MouseEvent.BUTTON3:
 				if (e.isControlDown()) {
@@ -157,7 +175,8 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		} else {
 			switch (e.getButton()) {
 			case MouseEvent.BUTTON1:
-				automaton.addState(TextFenster.getText("Enter Name of State!", "z"), false, e.getX() - State.width / 2, e.getY() - State.height / 2);
+				automaton.addState(TextFenster.getText("Enter Name of State!", "z"), false, e.getX() - State.width / 2,
+						e.getY() - State.height / 2);
 				break;
 			case MouseEvent.BUTTON2:
 
@@ -172,27 +191,34 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		if(dragged != null) {
-		dragged = null;
-		dragged_point = null;
-		}
-		if(connect != null) {
+		if (dragged != null) {
+			dragged = null;
+			dragged_point = null;
+		} else if (connect != null) {
 			State s = automaton.StateAt(e.getPoint());
-			if(s != null) {
-				automaton.addEdge(connect, s, TextFenster.getText("Enter Name of Connection!", "a,b"));
+			if (s != null) {
+				String str = TextFenster.getText("Enter Name of Connection!", "$");
+				char c = str.length() > 0 ? str.charAt(0) : '$';
+				automaton.addEdge(connect, s, c);
 			}
 			connect = null;
 			connect_point = null;
-		}
-		if(disconnect != null) {
+		} else if (disconnect != null) {
 			State s = automaton.StateAt(e.getPoint());
-			if(s != null) {
-				automaton.removeEdge(disconnect, s, "");
+			if (s != null) {
+				String str = TextFenster.getText("Configure Connection!", automaton.getConnections(disconnect, s));
+				if (str.matches("(.(,.)*)|")) {
+					Character[] split = new Character[str.length() / 2 + 1];
+					for (int i = 0; i < str.length(); i += 2) {
+						split[i / 2] = str.charAt(i);
+					}
+					automaton.setConnections(disconnect, s, split);
+				}
 			}
 			disconnect = null;
 			disconnect_point = null;
 		}
-		
+
 	}
 
 	public void mouseDragged(MouseEvent e) {
@@ -200,9 +226,9 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 			dragged.setX(e.getX() + dragged_point.x);
 			dragged.setY(e.getY() + dragged_point.y);
 		}
-		if(connect != null) {
+		if (connect != null) {
 			connect_point = e.getPoint();
-		} 
+		}
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -218,10 +244,10 @@ public class Gui extends JLabel implements MouseListener, MouseMotionListener {
 		fa.addState("z2", true, 300, 200);
 		fa.addState("z3", false, 500, 0);
 
-		fa.addEdge(0, 1, ".");
-		fa.addEdge(0, 2, ".");
-		fa.addEdge(0, 3, ".");
-		fa.addEdge(3, 0, ".");
+		fa.addEdge(0, 1, 'x');
+		fa.addEdge(1, 3, 'x');
+		fa.addEdge(3, 0, 'x');
+		fa.addEdge(3, 2, 'x');
 
 		g.setFA(fa);
 	}

@@ -97,7 +97,7 @@ public class State {
 	}
 	
 	public void addConnectionTo(Graphics2D g, State s, String connection) {
-		g.setColor(Color.GRAY);
+		g.setColor(Color.BLACK);
 		g.setFont(new Font("Calibri" ,Font.CENTER_BASELINE, size+5));
 		if (!this.equals(s)) {
 			Vector v = Vector.add(s.mid(), Vector.mult(mid(), -1));
