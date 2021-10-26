@@ -71,18 +71,17 @@ public class State {
 			g.drawRoundRect(x + d, y + d, width - 2 * d, height - 2 * d, arc, arc);
 
 		g.setFont(new Font("OCR A Extended", Font.CENTER_BASELINE, size));
-		g.drawString(name, (x + width / 2) - (int) ((double) name.length() / (double) 3 * size),
-				y + height / 2 + (int) (size / 3));
-
+		Gui.drawCenteredString(g, name, Gui.getPointFrom(mid()));
 		if (start) {
 			Gui.drawArrow(g, x - 50, y + height / 2, x, y + height / 2, arrow_stroke);
 		}
 	}
 
-	public void connectTo(Graphics2D g, State s, String connection) {
+	public void connectTo(Graphics2D g, State s) {
 		if (!this.equals(s)) {
 			Vector r = Vector.add(s.mid(), Vector.mult(mid(), -1));
 			Gui.drawArrow(g, getPointIn(r), s.getPointIn(Vector.mult(r, -1)), arrow_stroke);
+
 		} else {
 			g.setStroke(new BasicStroke(arrow_stroke));
 			g.drawLine(x + width / 4, y, x + width / 4, y - height / 4);
@@ -91,12 +90,25 @@ public class State {
 		}
 	}
 
-	public void connectTo(Graphics2D g, Vector v, String connection) {
+	public void connectTo(Graphics2D g, Vector v) {
 		Vector r = Vector.add(v, Vector.mult(mid(), -1));
 
 		Gui.drawArrow(g, getPointIn(r), Gui.getPointFrom(v), arrow_stroke);
 	}
 	
+	public void addConnectionTo(Graphics2D g, State s, String connection) {
+		g.setColor(Color.GRAY);
+		g.setFont(new Font("Calibri" ,Font.CENTER_BASELINE, size+5));
+		if (!this.equals(s)) {
+			Vector v = Vector.add(s.mid(), Vector.mult(mid(), -1));
+			Vector r = Vector.add(mid(),Vector.mult(v,0.5));
+			Vector c = Vector.mult(Vector.norm(Vector.cross(v)), 20);
+			Gui.drawCenteredString(g, connection,Gui.getPointFrom(Vector.add(r,c)));
+		} else {
+			Gui.drawCenteredString(g, connection, x+width/2, y - height/2);
+		}
+	}
+
 	public void connectFrom(Graphics2D g, Vector v, String connection) {
 		Vector r = Vector.add(v, Vector.mult(mid(), -1));
 

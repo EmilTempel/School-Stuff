@@ -213,13 +213,20 @@ public class FiniteAutomaton {
 			
 			for (int j = 0; j < states.length; j++) {
 				if (matrix[i][j].length != 0)
-					states[i].connectTo(g, states[j], Arrays.deepToString(matrix[i][j]));
+					states[i].connectTo(g, states[j]);
+			}
+		}
+		for(int i = 0; i < states.length; i++) {
+			for (int j = 0; j < states.length; j++) {
+				if (matrix[i][j].length != 0)
+					states[i].addConnectionTo(g, states[j], Arrays.toString(matrix[i][j]));
 			}
 		}
 		
 		for(int i = 0; i < states.length; i++) {
 			states[i].draw(g);
 		}
+		
 	}
 
 	public static <E> boolean contains(E[] arr, E o) {
