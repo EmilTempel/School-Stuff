@@ -20,13 +20,15 @@ public class GUI {
 		frame.setSize(360, 210);
 		frame.setLayout(null);
 
-		PointOfView PoV = new PointOfView(new Vector(0, 0, 0));
+		PointOfView PoV = new PointOfView(new Vector(-20, 0, 0));
 		PoV.setAlpha(Math.toRadians(0));
 		PoV.setBeta(Math.toRadians(0));
-		PoV.setS(new Vector(-25,0,0));
+		PoV.setS(new Vector(-12,0,0));
 		
-		Polytope p = new Polytope(new Vector(-5,-5,-5),10,10,10);
-		Mesh m = p.calcFaces();
+		double R = 8;
+		double r = 2;
+		
+		Mesh m = Mesh.MarchingCubes(new Vector(11,11,11), -22, 20, v -> Math.pow((Vector.dot(v, v)+R*R-r*r),2)-4*R*R*(v.x(0)*v.x(0)+v.x(2)*v.x(2)) );
 		
 		JLabel lbl = new JLabel() {
 			Vector u = new Vector(0,0,1);

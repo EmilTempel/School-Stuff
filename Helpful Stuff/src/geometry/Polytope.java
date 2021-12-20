@@ -35,12 +35,12 @@ public class Polytope {
 
 			for (int j = 0; j < len; j++) {
 				graph.addNode(Vector.add(graph.getNode(j), v[i]));
-				graph.setEdge(j, j + len, v[i]);
+				graph.setEdge_index(j, j + len, v[i]);
 			}
 
 			for (int j = 0; j < len; j++) {
 				for (int k = 0; k < len; k++) {
-					graph.setEdge(j + len, k + len, graph.getEdge(j, k));
+					graph.setEdge_index(j + len, k + len, graph.getEdge(j, k));
 				}
 			}
 		}
@@ -118,10 +118,51 @@ public class Polytope {
 
 		return mesh;
 	}
+	
+	public static ArrayList<Vector> convexify(ArrayList<Vector> p){
+		ArrayList<Vector> poly = (ArrayList<Vector>) p.clone();
+		ArrayList<Vector> convex = new ArrayList<Vector>();
+		
+		convex.add(poly.get(0));
+		poly.remove(0);
+		Vector ref = Vector.norm(Vector.sub(poly.get((int)(Math.random()*poly.size())), convex.get(0)));
+		Vector next = poly.get(0);
+		function f = (v,u) -> Vector.dot(Vector.norm(Vector.sub(v,convex.get(0))), u);
+		double dot = f.calc(next,ref);
+		for(int i = 1; i < poly.size(); i++) {
+			if(f.calc(poly.get(i),ref) < dot) {
+				next = poly.get(i);
+				dot = f.calc(next,ref);
+			}
+		}
+		
+		convex.add(next);
+		poly.remove(next);
+		ref = Vector.norm(Vector.sub(poly.get((int)(Math.random()*poly.size())), convex.get(0)));
+		
+		while(poly.size() > 0) {
+			next = poly.get(0);
+			dot = f.calc(next,ref);
+			for(int i = 1; i < poly.size(); i++) {
+				if(f.calc(poly.get(i),ref)< dot) {
+					next = poly.get(i);
+					dot = f.calc(next,ref);
+				}
+			}
+			convex.add(next);
+			poly.remove(next);
+		}
+		
+		return convex;
+	}
 
 	public static void main(String[] args) {
 		Polytope p = new Polytope(new Vector(-1, -1, -1), new Vector(1, 0, 0), new Vector(0, 1, 0),
 				new Vector(0, 0, 1));
 		System.out.println(p.calcFaces());
+	}
+	
+	public interface function{
+		public abstract double calc(Vector u, Vector v);
 	}
 }

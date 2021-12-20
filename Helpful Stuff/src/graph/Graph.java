@@ -19,9 +19,9 @@ public class Graph<Node, Edge> {
 		this(directed);
 		this.default_connection = default_connection;
 	}
-	
+
 	public Graph(Node[] nodes, Edge[][] matrix) {
-		
+
 	}
 
 	public void addNode(Node n) {
@@ -44,13 +44,13 @@ public class Graph<Node, Edge> {
 	public void setEdge(Node n1, Node n2, Edge e) {
 		int i = getIndexOf(n1), j = getIndexOf(n2);
 		if (i != -1 && j != -1) {
-			setEdge(i, j, e);
+			setEdge_index(i, j, e);
 		}
 	}
 
-	public void setEdge(int i, int j, Edge e) {
+	public void setEdge_index(int i, int j, Edge e) {
 		matrix.get(i).set(j, e);
-		if(!directed)
+		if (!directed)
 			matrix.get(j).set(i, e);
 	}
 
@@ -69,38 +69,41 @@ public class Graph<Node, Edge> {
 	public Edge getEdge(int i, int j) {
 		return matrix.get(i).get(j);
 	}
-	
+
 	public void DepthFirstSearch(int i, boolean[] besucht, Checker<Node> c, Executer<Node> e) {
-		for(int j = 0; j < size(); j++) {
-			if(getEdge(i,j) != null && !besucht[j] && c.check(getNode(j), j)) {
-				System.out.println("yes");
-				e.execute(getNode(j),j);
-				besucht[j] = true;
-				DepthFirstSearch(j, besucht, c, e);
+		if (c.check(getNode(i), i)) {
+			e.execute(getNode(i), i);
+			for (int j = 0; j < size(); j++) {
+				if (getEdge(i, j) != null && !besucht[j] && c.check(getNode(j), j)) {
+					System.out.println("yes");
+					e.execute(getNode(j), j);
+					besucht[j] = true;
+					DepthFirstSearch(j, besucht, c, e);
+				}
 			}
 		}
 	}
-	
+
 	public String toString() {
 		String str = "";
-		for(int i = 0; i < size(); i++) {
-			for(int j = 0; j < size(); j++) {
-				str += (matrix.get(i).get(j) != null? 1 : 0) + " ";
+		for (int i = 0; i < size(); i++) {
+			for (int j = 0; j < size(); j++) {
+				str += (matrix.get(i).get(j) != null ? 1 : 0) + " ";
 			}
-			str+= "\n";
+			str += "\n";
 		}
-		
+
 		return str;
 	}
-	
-	public interface Checker<Node>{
+
+	public interface Checker<Node> {
 		public abstract boolean check(Node n, int i);
 	}
-	
-	public interface Executer<Node>{
+
+	public interface Executer<Node> {
 		public abstract void execute(Node n, int i);
 	}
-	
+
 //	public static void main(String[]args) {
 //		Graph<String, Integer> g = new Graph<String, Integer>(420);
 //		g.addNode("1");

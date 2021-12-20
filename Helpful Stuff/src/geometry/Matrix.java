@@ -104,12 +104,6 @@ public class Matrix {
 	}
 
 	public static void main(String[] args) {
-		Matrix A = new Matrix(
-				new double[][] { 
-					new double[] { 4, 2, 4 },
-					new double[] { 0, 2, 8 }, 
-					new double[] { 0, 0, 3 } });
-		System.out.println(recursive_Determinant(A));
-		System.out.println(A.isTriangular());
+		System.out.println(new int[] {1,2,3}.equals(new int[] {1,2,3}));
 	}
 }

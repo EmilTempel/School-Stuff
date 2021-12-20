@@ -1,5 +1,7 @@
 package math;
 
+import java.util.Arrays;
+
 public class Functions {
 
 	public static long ggT(long... x) {
@@ -97,6 +99,36 @@ public class Functions {
 		return max;
 	}
 	
+	public static int toDEX(int... arr) {
+		int erg = 0;
+		for(int i = 0; i < arr.length; i++) {
+			erg += (arr[i] == 0 ? 0 : 1 )*Math.pow(2, i);
+		}
+		return erg;
+	}
+	
+	public static int[] toBIN(int input, int size) {
+		int[] bits = new int[size];
+	    for (int i = bits.length-1; i >= 0; i--) {
+	        bits[i] = (input & (1 << i)) != 0 ? 1 : 0;
+	    }
+	    return bits;
+	}
+	
+	public static int log2(int N)
+    {
+  
+        // calculate log2 N indirectly
+        // using log() method
+        int result = (int)(Math.log(N) / Math.log(2));
+  
+        return result;
+    }
+	
+	public static double map(double x, double x0, double x1, double y0, double y1) {
+		return ((x-x0)/(x1-x0)) * (y1-y0) + y0;
+	}
+	
 	public interface Function{
 		public abstract <In, Out> In run(Out o);
 	}
@@ -106,6 +138,6 @@ public class Functions {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("123456hallo Welt!789".replaceAll("[^\\d]", ""));
+		System.out.println(map(0,-1,3,0,1));
 	}
 }
