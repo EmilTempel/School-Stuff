@@ -24,11 +24,11 @@ public class Sphere extends Projectable{
 
 	public Vector project(Vector u) {
 		Vector M = PoV.getS();
-		Vector r = Vector.add(u, Vector.mult(M, -1));
+		Vector r = Vector.sub(M, u);
 		Vector cross = Vector.mult(Vector.norm(r), R);
 		double lat = -Math.asin(Vector.dot(cross, system[2])/R);
 		double lon = Math.atan2(Vector.dot(cross,system[1]),Vector.dot(cross, system[0]));
 		
-		return new Vector(Math.toDegrees(lat),Math.toDegrees(lon));
+		return new Vector(Math.toDegrees(lon),Math.toDegrees(lat));
 	}
 }

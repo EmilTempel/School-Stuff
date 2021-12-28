@@ -157,9 +157,7 @@ public class Polytope {
 	}
 
 	public static void main(String[] args) {
-		Polytope p = new Polytope(new Vector(-1, -1, -1), new Vector(1, 0, 0), new Vector(0, 1, 0),
-				new Vector(0, 0, 1));
-		System.out.println(p.calcFaces());
+		System.out.println(1/Math.acos(1));
 	}
 	
 	public interface function{

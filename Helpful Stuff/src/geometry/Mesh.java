@@ -9,11 +9,13 @@ import math.Functions;
 
 public class Mesh {
 
-	ArrayList<Vector[]> triangles;
+	ArrayList<Vector> vertices;
+	ArrayList<Integer> triangles;
 	ArrayList<Color> colors;
 
 	public Mesh() {
-		triangles = new ArrayList<Vector[]>();
+		vertices = new ArrayList<Vector>();
+		triangles = new ArrayList<Integer>();
 		colors = new ArrayList<Color>();
 	}
 
@@ -22,8 +24,24 @@ public class Mesh {
 		addTriangles(triangles, colors);
 	}
 
-	public ArrayList<Vector[]> getTriangles() {
+	public int size() {
+		return triangles.size() / 3;
+	}
+
+	public ArrayList<Vector> getVertices() {
+		return vertices;
+	}
+
+	public ArrayList<Integer> getTriangles() {
 		return triangles;
+	}
+
+	public Vector[] getTriangle(int i) {
+		Vector[] tri = new Vector[3];
+		for (int j = 0; j < 3; j++) {
+			tri[j] = vertices.get(triangles.get(i * 3 + j));
+		}
+		return tri;
 	}
 
 	public ArrayList<Color> getColors() {
@@ -32,7 +50,12 @@ public class Mesh {
 
 	public void addTriangle(Vector[] t, Color c) {
 		if (t.length == 3) {
-			triangles.add(t);
+			for (int i = 0; i < 3; i++) {
+				if (!vertices.contains(t[i])) {
+					vertices.add(t[i]);
+				}
+				triangles.add(vertices.indexOf(t[i]));
+			}
 			colors.add(c);
 		}
 	}
@@ -44,15 +67,18 @@ public class Mesh {
 	}
 
 	public void addMesh(Mesh m) {
-		for (int i = 0; i < m.triangles.size(); i++) {
-			addTriangle(m.getTriangles().get(i), m.getColors().get(i));
+		for (int i = 0; i < m.size(); i++) {
+			addTriangle(m.getTriangle(i), m.getColors().get(i));
 		}
 	}
 
 	public String toString() {
 		String str = "";
-		for (Vector[] t : triangles) {
-			str += Arrays.deepToString(t) + "\n";
+		for (int i = 0; i < triangles.size(); i += 3) {
+			for (int j = 0; j < 3; j++) {
+				str += vertices.get(triangles.get(i + j));
+			}
+			str += "\n";
 		}
 		return str;
 	}
@@ -60,7 +86,7 @@ public class Mesh {
 	public static Mesh merge(Mesh... meshes) {
 		Mesh mesh = new Mesh();
 		for (Mesh m : meshes) {
-			mesh.addTriangles(m.getTriangles(), m.getColors());
+			mesh.addMesh(m);
 		}
 		return mesh;
 	}
@@ -109,7 +135,8 @@ public class Mesh {
 						double val2 = values[i + v2[0]][j + v2[1]][k + v2[2]];
 						double interpolation_factor = (0 - val1) / (val2 - val1);
 
-						interpolated_edgepoint[e] = Vector.add(points[i + v1[0]][j + v1[1]][k + v1[2]],Vector.mult(norm, interpolation_factor));
+						interpolated_edgepoint[e] = Vector.add(points[i + v1[0]][j + v1[1]][k + v1[2]],
+								Vector.mult(norm, interpolation_factor));
 					}
 					for (int t = 0; t < 5; t++) {
 						if (config[t * 3] < 0)
@@ -120,7 +147,8 @@ public class Mesh {
 							triangle[e] = interpolated_edgepoint[config[t * 3 + e]];
 						}
 						System.out.println(Arrays.deepToString(triangle));
-						m.addTriangle(triangle, Color.BLACK);
+						m.addTriangle(triangle, new Color((int) (Math.random() * 256), (int) (Math.random() * 256),
+								(int) (Math.random() * 256)));
 					}
 				}
 			}

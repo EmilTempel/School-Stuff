@@ -23,6 +23,18 @@ public class Vector {
 		return x[i];
 	}
 
+	public double x() {
+		return x[0];
+	}
+
+	public double y() {
+		return x[1];
+	}
+
+	public double z() {
+		return x[2];
+	}
+
 	public int deg() {
 		return x.length;
 	}
@@ -129,7 +141,7 @@ public class Vector {
 		for (int i = 0; i < deg(); i++) {
 			str += x[i] + "|";
 		}
-		return str.substring(0,str.length()-1)+")";
+		return str.substring(0, str.length() - 1) + ")";
 	}
 
 	public boolean equals(Object o) {

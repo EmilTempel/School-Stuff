@@ -1,28 +1,65 @@
 package projection;
 
+import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Polygon;
+import java.awt.Robot;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 
 import geometry.Mesh;
 import geometry.Vector;
+import math.Functions;
 import projection.projectables.Projectable;
 import projection.projectables.Sphere;
 
-public class PointOfView {
+public class PointOfView extends KeyAdapter implements MouseMotionListener{
 
 	Vector s, r;
 	Projectable p;
 	double alpha, beta;
 
-	public PointOfView(Vector s) {
+	double FOV;
+	Dimension d,D;
+
+	Vector light = Vector.norm(new Vector(0, 5, -3));
+	
+	Robot bot;
+
+	public PointOfView(Vector s, double FOV, Dimension d) {
 		this.s = s;
 		r = new Vector(1, 0, 0);
 		this.p = new Sphere(this, 5);
+		this.FOV = FOV;
+		this.d = d;
+		this.D = new Dimension((int)(d.getWidth()*360/FOV), (int)(d.getWidth()*360/FOV/2));
+		
+		try {
+			this.bot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public PointOfView(Vector s, double FOV, int width) {
+		this(s, FOV, new Dimension(width, width *9/16));
+
 	}
 
 	public void setS(Vector s) {
 		this.s = s;
+	}
+
+	public void SetR(Vector r) {
+		this.r = r;
+		p.update(r);
+		updateAngles();
 	}
 
 	public void setAlpha(double alpha) {
@@ -43,6 +80,11 @@ public class PointOfView {
 		return beta;
 	}
 
+	public void updateAngles() {
+		beta = Math.acos(r.x(2));
+		alpha = Math.acos(r.x(0) / Math.cos(beta));
+	}
+
 	public void updateR() {
 		r = new Vector(Math.cos(beta) * Math.cos(alpha), Math.cos(beta) * Math.sin(alpha), Math.sin(beta));
 		p.update(r);
@@ -58,52 +100,163 @@ public class PointOfView {
 	}
 
 	public void paint(Mesh m, Graphics g) {
-		for (int j = 0; j < m.getTriangles().size(); j++) {
-			Vector[] v = m.getTriangles().get(j);
-			Color c = m.getColors().get(j);
-			Polygon calc = calc(v);
+		ArrayList<Vector> verts = m.getVertices();
+		boolean[] inSight = new boolean[verts.size()];
+		double[] dists = new double[verts.size()];
+		Vector[] projected = new Vector[verts.size()];
 
-			if (isCut(calc)) {
-				for (int i = -1; i <= 1; i += 2) {
-					Polygon neu = new Polygon();
+		ArrayList<Integer> sorted = new ArrayList<Integer>();
+		for (int i = 0; i < verts.size(); i++) {
+			Vector v = Vector.sub(verts.get(i), s);
+			dists[i] = Vector.abs(v);
 
-					for (int n = 0; n < calc.npoints; n++) {
-						int x = calc.xpoints[n] + i * 360 - 180;
-						if ((i == -1 ? x < -360 : x > 360)) {
-							x = calc.xpoints[n] - 180;
+			double alpha = Math.acos(Vector.dot(Vector.mult(r, -1), Vector.mult(v, 1 / dists[i])));
+			if (inSight[i] = alpha < Math.toRadians(FOV / 2)+10) {
+				sorted.add(i);
+			}
+		}
+
+		sorted.sort((v1, v2) -> (int) Math.round((dists[v2] - dists[v1]) * 1000));
+
+		ArrayList<Integer> triangles = new ArrayList<Integer>();
+		boolean[] used = new boolean[m.size()];
+
+		for (Integer v : sorted) {
+			for (int i = 0; i < m.size(); i++) {
+				if (!used[i]) {
+					for (int j = 0; j < 3; j++) {
+						if (m.getTriangles().get(i * 3 + j).equals(v)) {
+							triangles.add(i);
+							used[i] = true;
+							break;
 						}
-						neu.addPoint(x + 180, calc.ypoints[n]);
+					}
+				}
+			}
+		}
+//		System.out.println(triangles.size() + "  " + m.size() + " | " + sorted.size() + "  " + verts.size());
+
+		for (int j = 0; j < triangles.size(); j++) {
+//			Color c = m.getColors().get(triangles.get(j));
+			Color c = Color.LIGHT_GRAY;
+			Vector[] tri3D = m.getTriangle(triangles.get(j));
+			Vector surface_normal = Vector
+					.norm(Vector.cross(Vector.sub(tri3D[0], tri3D[1]), Vector.sub(tri3D[0], tri3D[2])));
+			double light_val = Vector.dot(surface_normal, light) / 2 + 0.5;
+			c = new Color((int) (light_val * c.getRed()), (int) (light_val * c.getGreen()),
+					(int) (light_val * c.getBlue()));
+			
+			
+			Vector[] tri2D = new Vector[3];
+			for(int i = 0; i < 3; i++) {
+				int idx = m.getTriangles().get(triangles.get(j)*3 + i);
+				
+				if(projected[idx] == null) {
+					projected[idx] = Vector.add(p.project(tri3D[i]),new Vector(180,90));
+				}
+				Vector point = projected[idx];
+				
+				tri2D[i] = point;
+			}
+
+			if (isCut(tri2D)) {
+				for (int i = 0; i <= 1; i += 2) {
+					Vector[] triNeu = new Vector[3];
+
+					for (int n = 0; n < 3; n++) {
+						double x = tri2D[n].x(0);
+						if (x < 180) {
+							x += i == 0 ? 0 : 360;
+						} else {
+							x -= i == 1 ? 0 : 360;
+						}
+						triNeu[n] = new Vector(x, tri2D[n].x(1));
 					}
 
-					paint(neu, c, g);
+					paint(triNeu, c, g);
 				}
 			} else {
-				paint(calc, c, g);
+				paint(tri2D, c, g);
 			}
 		}
 	}
 
-	public void paint(Polygon p, Color c, Graphics g) {
+	public void paint(Vector[] poly2D, Color c, Graphics g) {
 		g.setColor(c);
-		g.drawPolygon(p);
-	}
-
-	public Polygon calc(Vector[] p) {
-		Polygon polygon = new Polygon();
-		for (int i = 0; i < p.length; i++) {
-			Vector point = this.p.project(p[i]);
-			polygon.addPoint((int) Math.round(point.x(1) + 180), (int) Math.round(point.x(0) + 90));
+		Polygon p = new Polygon();
+		for (int i = 0; i < poly2D.length; i++) {
+			p.addPoint((int) (Functions.map(poly2D[i].x(0), 0, 360, 0, D.getWidth()) - (D.getWidth()/2 - d.getWidth()/2)),
+					(int) (Functions.map(poly2D[i].x(1), 0, 180, 0, D.getHeight())- (D.getHeight()/2-d.getHeight()/2)));
 		}
-		return polygon;
+
+		g.fillPolygon(p);
+//		g.setColor(Color.GREEN);
+//		g.drawPolygon(p);
 	}
 
-	public boolean isCut(Polygon p) {
-		for (int i = 1; i < p.npoints; i++) {
-			if (Math.abs(p.xpoints[0] - p.xpoints[i]) > 180) {
+	public Vector[] calc(Vector[] poly3D) {
+		Vector[] poly2D = new Vector[poly3D.length];
+		for (int i = 0; i < poly2D.length; i++) {
+			Vector point = p.project(poly3D[i]);
+			poly2D[i] = new Vector(point.x(1) + 180, point.x(0) + 90);
+		}
+		return poly2D;
+	}
+
+	public static boolean isCut(Vector[] tri2D) {
+		for (int i = 1; i < 3; i++) {
+			if (Math.abs(tri2D[0].x(0) - tri2D[i].x(0)) > 180) {
 				return true;
 			}
 		}
 		return false;
 	}
 
+	public void keyPressed(KeyEvent e) {
+		double speed = 0.4;
+		Vector vel = new Vector(0, 0, 0);;
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_W:
+			vel = Vector.mult(r, -speed);
+			break;
+		case KeyEvent.VK_S:
+			vel = Vector.mult(r, speed);
+			break;
+		case KeyEvent.VK_A:
+			vel = new Vector(speed * r.x(1), -speed * r.x(0), 0);
+			break;
+		case KeyEvent.VK_D:
+			vel = new Vector(-speed * r.x(1), speed * r.x(0), 0);
+			break;
+		case KeyEvent.VK_SPACE:
+			vel = new Vector(0,0,speed);
+			break;
+		case KeyEvent.VK_CONTROL:
+			vel = new Vector(0,0,-speed);
+			break;
+		case KeyEvent.VK_ESCAPE:
+			System.exit(0);
+		break;
+		}
+		s = Vector.add(s,vel);
+	}
+	
+	
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		double speed = Math.toRadians(0.05);
+		setAlpha(getAlpha() + -speed * (e.getX()-d.getWidth()/2));
+		double beta = Math.toDegrees(getBeta() + speed * (e.getY()-d.getHeight()/2));
+		setBeta(Math.toRadians(beta > 90 ? 90 : beta < -90 ? -90 : beta));
+		bot.mouseMove(e.getXOnScreen()+(int)(d.getWidth()/2-e.getX()), e.getYOnScreen()+(int)(d.getHeight()/2-e.getY()));
+		
+//		System.out.println(e.getXOnScreen() + "   " + e.getX() + "  " + (e.getXOnScreen()+(int)(D.getWidth()-e.getX())));
+	}
 }
