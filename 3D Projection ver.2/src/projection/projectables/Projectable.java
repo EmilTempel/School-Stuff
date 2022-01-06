@@ -1,5 +1,7 @@
 package projection.projectables;
 
+import java.awt.Point;
+
 import geometry.Vector;
 import projection.PointOfView;
 
@@ -14,4 +16,6 @@ public abstract class Projectable {
 	public abstract void update(Vector r);
 	
 	public abstract Vector project (Vector p3D);
+	
+	public abstract Point transform(Vector p2D);
 }

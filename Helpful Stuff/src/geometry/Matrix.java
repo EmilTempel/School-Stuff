@@ -19,8 +19,8 @@ public class Matrix {
 	}
 
 	public Matrix(double[][] x) {
-		row = x[0].length;
-		col = x.length;
+		row = x.length;
+		col = x[0].length;
 
 		this.x = new double[row][col];
 		for (int i = 0; i < row; i++) {
@@ -57,20 +57,31 @@ public class Matrix {
 	public boolean isTriangular() {
 		boolean upper = true;
 		boolean lower = true;
-		for(int i = 0; i < row; i++) {
-			for(int j = 0; j < i; j++) {
-				if(x[i][j] != 0)
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < i; j++) {
+				if (x[i][j] != 0)
 					lower = false;
-				
-				if(x[j][i] != 0)
+
+				if (x[j][i] != 0)
 					upper = false;
-				
-				if(!upper && !lower) {
+
+				if (!upper && !lower) {
 					return false;
 				}
 			}
 		}
 		return true;
+	}
+
+	public static Vector mult(Matrix A, Vector v) {
+		assert A.deg().y() == v.deg() : "Die passen gar nicht zusammen, du kleiner Hurensohn";
+		double[] x = new double[(int) A.deg().x()];
+		for (int i = 0; i < x.length; i++) {
+			for (int j = 0; j < v.deg(); j++) {
+				x[i] += A.x(i, j) * v.x(j);
+			}
+		}
+		return new Vector(x);
 	}
 
 	public static double recursive_Determinant(Matrix A) {
@@ -104,6 +115,8 @@ public class Matrix {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(new int[] {1,2,3}.equals(new int[] {1,2,3}));
+		Vector v = new Vector(2, -1, 3);
+		Matrix A = new Matrix(new double[][] { { 2, 3, -2 }, { 4, 2, 1 }, {-2,5,3} });
+		System.out.println(Matrix.mult(A, v));
 	}
 }

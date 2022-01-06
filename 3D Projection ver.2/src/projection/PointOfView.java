@@ -4,6 +4,7 @@ import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Robot;
 import java.awt.event.KeyAdapter;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 
 import geometry.Mesh;
 import geometry.Vector;
-import math.Functions;
+import multithreading.Threading;
 import projection.projectables.Projectable;
 import projection.projectables.Sphere;
 
@@ -25,7 +26,7 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 	double alpha, beta;
 
 	double FOV;
-	Dimension d,D;
+	Dimension d;
 
 	Vector light = Vector.norm(new Vector(0, 5, -3));
 	
@@ -34,10 +35,10 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 	public PointOfView(Vector s, double FOV, Dimension d) {
 		this.s = s;
 		r = new Vector(1, 0, 0);
-		this.p = new Sphere(this, 5);
+		this.p = new Sphere(this, 1,FOV,d);
 		this.FOV = FOV;
 		this.d = d;
-		this.D = new Dimension((int)(d.getWidth()*360/FOV), (int)(d.getWidth()*360/FOV/2));
+		
 		
 		try {
 			this.bot = new Robot();
@@ -79,6 +80,14 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 	public double getBeta() {
 		return beta;
 	}
+	
+	public Dimension getDim() {
+		return d;
+	}
+	
+	public double getFOV() {
+		return FOV;
+	}
 
 	public void updateAngles() {
 		beta = Math.acos(r.x(2));
@@ -116,7 +125,7 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 			}
 		}
 
-		sorted.sort((v1, v2) -> (int) Math.round((dists[v2] - dists[v1]) * 1000));
+		sorted.sort((v1, v2) -> (int) Math.round((dists[v2] - dists[v1]) * 100000));
 
 		ArrayList<Integer> triangles = new ArrayList<Integer>();
 		boolean[] used = new boolean[m.size()];
@@ -135,37 +144,40 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 			}
 		}
 //		System.out.println(triangles.size() + "  " + m.size() + " | " + sorted.size() + "  " + verts.size());
-
+		
+		
 		for (int j = 0; j < triangles.size(); j++) {
 //			Color c = m.getColors().get(triangles.get(j));
 			Color c = Color.LIGHT_GRAY;
 			Vector[] tri3D = m.getTriangle(triangles.get(j));
 			Vector surface_normal = Vector
 					.norm(Vector.cross(Vector.sub(tri3D[0], tri3D[1]), Vector.sub(tri3D[0], tri3D[2])));
+			
+			
 			double light_val = Vector.dot(surface_normal, light) / 2 + 0.5;
 			c = new Color((int) (light_val * c.getRed()), (int) (light_val * c.getGreen()),
 					(int) (light_val * c.getBlue()));
 			
 			
-			Vector[] tri2D = new Vector[3];
+			final Vector[] tri2D = new Vector[3];
 			for(int i = 0; i < 3; i++) {
 				int idx = m.getTriangles().get(triangles.get(j)*3 + i);
 				
 				if(projected[idx] == null) {
-					projected[idx] = Vector.add(p.project(tri3D[i]),new Vector(180,90));
+					projected[idx] = p.project(tri3D[i]);
 				}
 				Vector point = projected[idx];
 				
 				tri2D[i] = point;
 			}
-
+			
 			if (isCut(tri2D)) {
 				for (int i = 0; i <= 1; i += 2) {
 					Vector[] triNeu = new Vector[3];
 
 					for (int n = 0; n < 3; n++) {
 						double x = tri2D[n].x(0);
-						if (x < 180) {
+						if (x < 0) {
 							x += i == 0 ? 0 : 360;
 						} else {
 							x -= i == 1 ? 0 : 360;
@@ -183,22 +195,23 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 
 	public void paint(Vector[] poly2D, Color c, Graphics g) {
 		g.setColor(c);
-		Polygon p = new Polygon();
+		Polygon poly = new Polygon();
 		for (int i = 0; i < poly2D.length; i++) {
-			p.addPoint((int) (Functions.map(poly2D[i].x(0), 0, 360, 0, D.getWidth()) - (D.getWidth()/2 - d.getWidth()/2)),
-					(int) (Functions.map(poly2D[i].x(1), 0, 180, 0, D.getHeight())- (D.getHeight()/2-d.getHeight()/2)));
+			Point p2D = p.transform(poly2D[i]);
+			poly.addPoint(p2D.x, p2D.y);
+			
 		}
 
-		g.fillPolygon(p);
+		g.fillPolygon(poly);
 //		g.setColor(Color.GREEN);
-//		g.drawPolygon(p);
+//		g.drawPolygon(poly);
 	}
 
 	public Vector[] calc(Vector[] poly3D) {
 		Vector[] poly2D = new Vector[poly3D.length];
 		for (int i = 0; i < poly2D.length; i++) {
 			Vector point = p.project(poly3D[i]);
-			poly2D[i] = new Vector(point.x(1) + 180, point.x(0) + 90);
+			poly2D[i] = new Vector(point.x(1), point.x(0));
 		}
 		return poly2D;
 	}
@@ -236,6 +249,9 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 			break;
 		case KeyEvent.VK_ESCAPE:
 			System.exit(0);
+			break;
+		case KeyEvent.VK_0:
+			SetR(new Vector(0,1,0));
 		break;
 		}
 		s = Vector.add(s,vel);

@@ -153,7 +153,7 @@ public class Mesh {
 				}
 			}
 		}
-		System.out.println(m.triangles.size());
+		System.out.println(m.vertices.size());
 
 		return m;
 	}
