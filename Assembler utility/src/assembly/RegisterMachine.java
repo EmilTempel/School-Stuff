@@ -25,7 +25,8 @@ public class RegisterMachine {
 		running = rm.running;
 	}
 
-	public static ArrayList<RegisterMachine> run(RegisterMachine rm, Command[] instructions) {
+	public static ArrayList<RegisterMachine> run(RegisterMachine rm,
+			Command[] instructions) {
 		ArrayList<RegisterMachine> steps = new ArrayList<RegisterMachine>();
 		steps.add(new RegisterMachine(rm));
 
@@ -39,11 +40,23 @@ public class RegisterMachine {
 		return steps;
 	}
 
+	public static Command[] fromString(String str) {
+		String[] split = str.split("\n");
+		Command[] instructions = new Command[split.length];
+
+		for (int i = 0; i < split.length; i++) {
+			String[] cmd = split[i].split(" ");
+			instructions[i] = new Command(Command.Type.fromString(cmd[0]),Integer.parseInt(cmd[1]));
+		}
+
+		return instructions;
+	}
+
 	public int R(int x) {
 		if (x > R.length) {
 			return 0;
 		} else {
-			return R[x-1];
+			return R[x - 1];
 		}
 	}
 
@@ -55,7 +68,7 @@ public class RegisterMachine {
 			}
 			R = temp;
 		}
-		R[x-1] = val;
+		R[x - 1] = val;
 	}
 
 	public void LOAD(int x) {
@@ -150,27 +163,25 @@ public class RegisterMachine {
 		running = false;
 		BZ++;
 	}
-	
+
 	public String toString() {
 		String str = BZ + " | " + A + " | ";
-		for(int i = 0; i < R.length; i++) {
+		for (int i = 0; i < R.length; i++) {
 			str += R[i];
-			if(i < R.length-1)
+			if (i < R.length - 1)
 				str += " | ";
 		}
 		return str;
 	}
 
 	public static void main(String[] args) {
-		Command[] instructions = { 
-				new Command(Type.LOAD, 1), 
-				new Command(Type.MULT, 2), 
-				new Command(Type.MULT, 3),
-				new Command(Type.END, 0)};
+		Command[] instructions = { new Command(Type.LOAD, 1),
+				new Command(Type.MULT, 2), new Command(Type.MULT, 3),
+				new Command(Type.END, 0) };
 		RegisterMachine rm = new RegisterMachine();
-		rm.R = new int[] {2,2,2};
-		
+		rm.R = new int[] { 2, 2, 2 };
+
 		System.out.println(run(rm, instructions));
 	}
-	
+
 }
