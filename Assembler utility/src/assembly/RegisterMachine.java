@@ -40,7 +40,7 @@ public class RegisterMachine {
 	}
 
 	public int R(int x) {
-		if (x-1 > R.length) {
+		if (x > R.length) {
 			return 0;
 		} else {
 			return R[x-1];
@@ -48,7 +48,7 @@ public class RegisterMachine {
 	}
 
 	public void setR(int x, int val) {
-		if (x-1 > R.length) {
+		if (x > R.length) {
 			int[] temp = new int[x];
 			for (int i = 0; i < R.length; i++) {
 				temp[i] = R[i];
