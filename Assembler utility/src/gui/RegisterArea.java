@@ -19,7 +19,7 @@ import assembly.RegisterMachine;
 public class RegisterArea extends JPanel {
 
 	CodingArea ca;
-	
+
 	RegisterMachine rm;
 	ArrayList<RegisterMachine> steps;
 	int index;
@@ -31,7 +31,7 @@ public class RegisterArea extends JPanel {
 
 	public RegisterArea(CodingArea ca) {
 		this.ca = ca;
-		
+
 		rm = new RegisterMachine();
 
 		setLayout(new BorderLayout());
@@ -40,6 +40,7 @@ public class RegisterArea extends JPanel {
 
 		JButton compile = new JButton("Compile");
 		JButton last = new JButton("Back");
+		JButton play = new JButton("Play");
 		JButton next = new JButton("Forward");
 		JButton edit = new JButton("Edit");
 
@@ -57,10 +58,12 @@ public class RegisterArea extends JPanel {
 			last.setEnabled(true);
 			next.setEnabled(true);
 
+			play.setEnabled(true);
+
 			for (Register r : registers) {
 				r.setEditable(false);
 			}
-			
+
 			ca.setEditable(false);
 		});
 
@@ -69,46 +72,65 @@ public class RegisterArea extends JPanel {
 			SwingUtilities.updateComponentTreeUI(this);
 		});
 
+		play.addActionListener(a -> {
+			setIndex(0);
+			Thread t = new Thread() {
+				public void run() {
+					for (int i = 0; i < steps.size(); i++) {
+						setIndex(i);
+						try {
+							Thread.sleep(1000);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			};
+			t.start();
+		});
+
 		next.addActionListener(a -> {
-			setIndex(index != steps.size() - 1 ? index + 1 : 0);
+			setIndex(index != steps.size() - 1 ? index + 1 : index);
 			SwingUtilities.updateComponentTreeUI(this);
 		});
 
 		last.setEnabled(false);
+		play.setEnabled(false);
 		next.setEnabled(false);
 
 		edit.addActionListener(a -> {
-			
+
 			last.setEnabled(false);
 			next.setEnabled(false);
+
+			play.setEnabled(false);
 
 			for (Register r : registers) {
 				r.setEditable(true);
 				r.setVal(rm.R(registers.indexOf(r)));
 			}
-			
+
 			ca.setEditable(true);
 			ca.clearBackground();
 		});
 
 		Header.add(compile);
-		Header.add(last);
-		Header.add(next);
 		Header.add(edit);
 
 		add(Header, BorderLayout.NORTH);
 
 		JPanel Body = new JPanel(new GridLayout(5, 5));
-		
+
 		Step = new Register("Step", rm);
 		Body.add(Step);
 
 		Counter = new Register("BZ", rm);
 		Body.add(Counter);
-		
-		Accumulator = new Register("A",rm);
+
+		Accumulator = new Register("A", rm);
 		Body.add(Accumulator);
-		
+
 		registers = new ArrayList<Register>();
 		for (int i = 0; i < 15; i++) {
 			Register reg = new Register(i, rm);
@@ -117,26 +139,35 @@ public class RegisterArea extends JPanel {
 		}
 
 		add(Body, BorderLayout.CENTER);
+
+		JPanel Bottom = new JPanel();
+
+		Bottom.add(last);
+		Bottom.add(play);
+		Bottom.add(next);
+
+		add(Bottom, BorderLayout.SOUTH);
 	}
 
 	public void setIndex(int index) {
 		this.index = index;
-		RegisterMachine now = steps.get(index), last = steps.get(index != 0 ? index -1 : 0);
+		RegisterMachine now = steps.get(index), last = steps
+				.get(index != 0 ? index - 1 : 0);
 		int[] R = now.getR();
-		
-		Step.setVal(index+1);
-		
+
+		Step.setVal(index + 1);
+
 		Counter.setVal(now.getBZ());
-		
+
 		ca.clearBackground();
 		ca.getLine(last.getBZ()).setBackground(Color.YELLOW);
-		
+
 		Accumulator.setVal(now.getA());
 
 		for (int i = 0; i < registers.size(); i++) {
 			registers.get(i).setVal(i < R.length ? R[i] : 0);
 		}
-		
+
 		SwingUtilities.updateComponentTreeUI(this);
 	}
 }
