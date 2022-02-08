@@ -24,6 +24,7 @@ public class RegisterArea extends JPanel {
 	ArrayList<RegisterMachine> steps;
 	int index;
 
+	Register Step;
 	Register Counter;
 	Register Accumulator;
 	ArrayList<Register> registers;
@@ -99,6 +100,8 @@ public class RegisterArea extends JPanel {
 
 		JPanel Body = new JPanel(new GridLayout(5, 5));
 		
+		Step = new Register("Step", rm);
+		Body.add(Step);
 
 		Counter = new Register("BZ", rm);
 		Body.add(Counter);
@@ -120,6 +123,9 @@ public class RegisterArea extends JPanel {
 		this.index = index;
 		RegisterMachine now = steps.get(index), last = steps.get(index != 0 ? index -1 : 0);
 		int[] R = now.getR();
+		
+		Step.setVal(index+1);
+		
 		Counter.setVal(now.getBZ());
 		
 		ca.clearBackground();
