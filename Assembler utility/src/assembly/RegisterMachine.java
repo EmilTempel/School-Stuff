@@ -32,7 +32,6 @@ public class RegisterMachine {
 
 		int i = 0;
 		while (rm.running) {
-			System.out.println(i++);
 			instructions[rm.BZ].execute(rm);
 			steps.add(new RegisterMachine(rm));
 		}
@@ -51,24 +50,36 @@ public class RegisterMachine {
 
 		return instructions;
 	}
+	
+	public int getBZ() {
+		return BZ;
+	}
+	
+	public int getA() {
+		return A;
+	}
+	
+	public int[] getR() {
+		return R;
+	}
 
 	public int R(int x) {
-		if (x > R.length) {
+		if (x > R.length-1) {
 			return 0;
 		} else {
-			return R[x - 1];
+			return R[x];
 		}
 	}
 
 	public void setR(int x, int val) {
-		if (x > R.length) {
-			int[] temp = new int[x];
+		if (x > R.length-1) {
+			int[] temp = new int[x+1];
 			for (int i = 0; i < R.length; i++) {
 				temp[i] = R[i];
 			}
 			R = temp;
 		}
-		R[x - 1] = val;
+		R[x] = val;
 	}
 
 	public void LOAD(int x) {
@@ -159,7 +170,6 @@ public class RegisterMachine {
 	}
 
 	public void END() {
-		System.out.println("END");
 		running = false;
 		BZ++;
 	}

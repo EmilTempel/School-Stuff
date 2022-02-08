@@ -5,7 +5,7 @@ public class Command {
 	Type type;
 	int x;
 
-	Command(Type type, int x) {
+	public Command(Type type, int x) {
 		this.type = type;
 		this.x = x;
 	}
@@ -13,8 +13,12 @@ public class Command {
 	public void execute(RegisterMachine rm) {
 		type.execute(rm, x);
 	}
+	
+	public String toString() {
+		return type + " " + x;
+	}
 
-	enum Type {
+	public enum Type {
 		LOAD((rm, x) -> rm.LOAD(x)), DLOAD((rm, x) -> rm.DLOAD(x)), STORE((rm,
 				x) -> rm.STORE(x)), ADD((rm, x) -> rm.ADD(x)), SUB(
 				(rm, x) -> rm.SUB(x)), MULT((rm, x) -> rm.MULT(x)), DIV(
