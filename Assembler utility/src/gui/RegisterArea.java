@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -82,7 +83,6 @@ public class RegisterArea extends JPanel {
 
 		play.addActionListener(a -> {
 			p.wakeUp();
-			System.out.println(69);
 		});
 
 		millis.addKeyListener(new KeyAdapter() {
@@ -98,6 +98,7 @@ public class RegisterArea extends JPanel {
 				p.setMillis(Long.parseLong(millis.getText()));
 			}
 		});
+		millis.setPreferredSize(new Dimension(50,30));
 
 		stop.addActionListener(a -> {
 			p.stopTheCount();

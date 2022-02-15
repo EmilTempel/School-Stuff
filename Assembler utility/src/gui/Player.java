@@ -23,7 +23,6 @@ public class Player{
 	
 	public synchronized void setWaiting() {
 		try {
-			System.out.println("waiting...");
 			wait();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -50,7 +49,7 @@ public class Player{
 		for (int i = ra.index; i < ra.steps.size(); i++) {
 			ra.setIndex(i);
 
-			if (running)
+			if (!running)
 				return;
 
 			try {
