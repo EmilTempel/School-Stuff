@@ -3,17 +3,20 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import assembly.Command;
 import assembly.CompilerException;
+import assembly.EternalException;
 import assembly.RegisterMachine;
 
 public class RegisterArea extends JPanel {
@@ -41,24 +44,29 @@ public class RegisterArea extends JPanel {
 		JButton compile = new JButton("Compile");
 		JButton last = new JButton("Back");
 		JButton play = new JButton("Play");
+		JTextField millis = new JTextField();
+		JButton stop = new JButton("Stop");
 		JButton next = new JButton("Forward");
 		JButton edit = new JButton("Edit");
+
+		Player p = new Player(this);
 
 		compile.addActionListener(a -> {
 			Command[] instructions;
 			try {
 				instructions = ca.getInstructions();
-			} catch (CompilerException e) {
+				steps = RegisterMachine.run(new RegisterMachine(rm), instructions);
+			} catch (CompilerException | EternalException e) {
 				e.printStackTrace();
 				return;
 			}
 
-			steps = RegisterMachine.run(new RegisterMachine(rm), instructions);
 			setIndex(0);
 			last.setEnabled(true);
-			next.setEnabled(true);
-
 			play.setEnabled(true);
+			millis.setEnabled(true);
+			stop.setEnabled(true);
+			next.setEnabled(true);
 
 			for (Register r : registers) {
 				r.setEditable(false);
@@ -73,21 +81,26 @@ public class RegisterArea extends JPanel {
 		});
 
 		play.addActionListener(a -> {
-			setIndex(0);
-			Thread t = new Thread() {
-				public void run() {
-					for (int i = 0; i < steps.size(); i++) {
-						setIndex(i);
-						try {
-							Thread.sleep(1000);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+			p.wakeUp();
+			System.out.println(69);
+		});
+
+		millis.addKeyListener(new KeyAdapter() {
+			public void keyTyped(KeyEvent e) {
+				char c = e.getKeyChar();
+				if (!(Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE)) {
+					e.consume();
 				}
-			};
-			t.start();
+			}
+		});
+		millis.addFocusListener(new FocusAdapter() {
+			public void focusLost(FocusEvent e) {
+				p.setMillis(Long.parseLong(millis.getText()));
+			}
+		});
+
+		stop.addActionListener(a -> {
+			p.stopTheCount();
 		});
 
 		next.addActionListener(a -> {
@@ -97,14 +110,17 @@ public class RegisterArea extends JPanel {
 
 		last.setEnabled(false);
 		play.setEnabled(false);
+		millis.setEnabled(false);
+		stop.setEnabled(false);
 		next.setEnabled(false);
 
 		edit.addActionListener(a -> {
 
 			last.setEnabled(false);
-			next.setEnabled(false);
-
 			play.setEnabled(false);
+			millis.setEnabled(false);
+			stop.setEnabled(false);
+			next.setEnabled(false);
 
 			for (Register r : registers) {
 				r.setEditable(true);
@@ -144,6 +160,8 @@ public class RegisterArea extends JPanel {
 
 		Bottom.add(last);
 		Bottom.add(play);
+		Bottom.add(millis);
+		Bottom.add(stop);
 		Bottom.add(next);
 
 		add(Bottom, BorderLayout.SOUTH);
@@ -151,8 +169,7 @@ public class RegisterArea extends JPanel {
 
 	public void setIndex(int index) {
 		this.index = index;
-		RegisterMachine now = steps.get(index), last = steps
-				.get(index != 0 ? index - 1 : 0);
+		RegisterMachine now = steps.get(index), last = steps.get(index != 0 ? index - 1 : 0);
 		int[] R = now.getR();
 
 		Step.setVal(index + 1);

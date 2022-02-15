@@ -34,7 +34,7 @@ public class CompilerException extends Exception {
 
 	public void printStackTrace() {
 
-		System.out.println("Compiler encountered Error at Line" + (lines.size() > 1 ? "s" : "") + ": "
+		System.out.println("ERROR! At line" + (lines.size() > 1 ? "s" : "") + ": "
 				+ lines.toString());
 
 		for (JTextField field : fields) {
