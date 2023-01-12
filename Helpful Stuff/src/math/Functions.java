@@ -24,7 +24,7 @@ public class Functions {
 	}
 
 	//
-	// Methoden für double
+	// Methoden fï¿½r double
 	public static double min(double... x) {
 		double min = x.length > 0 ? x[0] : 0;
 		for (int i = 1; i < x.length; i++) {
@@ -62,7 +62,7 @@ public class Functions {
 	}
 
 	//
-	// Methoden für int
+	// Methoden fï¿½r int
 	public static long min(long... x) {
 		long min = x.length > 0 ? x[0] : 0;
 		for (int i = 1; i < x.length; i++) {
@@ -102,7 +102,7 @@ public class Functions {
 	public static int toDEX(int... arr) {
 		int erg = 0;
 		for(int i = 0; i < arr.length; i++) {
-			erg += (arr[i] == 0 ? 0 : 1 )*Math.pow(2, i);
+			erg += (arr[arr.length-i-1] == 0 ? 0 : 1 )*Math.pow(2, i);
 		}
 		return erg;
 	}
@@ -110,9 +110,14 @@ public class Functions {
 	public static int[] toBIN(int input, int size) {
 		int[] bits = new int[size];
 	    for (int i = bits.length-1; i >= 0; i--) {
-	        bits[i] = (input & (1 << i)) != 0 ? 1 : 0;
+	        bits[i] = input % 2;
+	        input >>= 1;
 	    }
 	    return bits;
+	}
+	
+	public static double[] toDouble(int[] ints) {
+		return Arrays.stream(ints).asDoubleStream().toArray();
 	}
 	
 	public static int log2(int N)
@@ -129,13 +134,6 @@ public class Functions {
 		return ((x-x0)/(x1-x0)) * (y1-y0) + y0;
 	}
 	
-	public interface Function{
-		public abstract <In, Out> In run(Out o);
-	}
-	
-	public interface Executable{
-		public abstract void run();
-	}
 
 	public static void main(String[] args) {
 		System.out.println(map(0,-1,3,0,1));

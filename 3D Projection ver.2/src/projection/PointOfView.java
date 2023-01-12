@@ -62,6 +62,14 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 		p.update(r);
 		updateAngles();
 	}
+	
+	public Vector getLight() {
+		return light;
+	};
+	
+	public void setLight(Vector light) {
+		this.light = light;
+	}
 
 	public void setAlpha(double alpha) {
 		this.alpha = alpha;
@@ -148,7 +156,7 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 		
 		for (int j = 0; j < triangles.size(); j++) {
 //			Color c = m.getColors().get(triangles.get(j));
-			Color c = Color.LIGHT_GRAY;
+			Color c = Color.GREEN;
 			Vector[] tri3D = m.getTriangle(triangles.get(j));
 			Vector surface_normal = Vector
 					.norm(Vector.cross(Vector.sub(tri3D[0], tri3D[1]), Vector.sub(tri3D[0], tri3D[2])));
@@ -203,8 +211,8 @@ public class PointOfView extends KeyAdapter implements MouseMotionListener{
 		}
 
 		g.fillPolygon(poly);
-//		g.setColor(Color.GREEN);
-//		g.drawPolygon(poly);
+		g.setColor(Color.LIGHT_GRAY);
+		g.drawPolygon(poly);
 	}
 
 	public Vector[] calc(Vector[] poly3D) {
