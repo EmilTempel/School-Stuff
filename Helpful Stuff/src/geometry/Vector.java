@@ -1,7 +1,5 @@
 package geometry;
 
-import java.util.Arrays;
-
 public class Vector {
 	static final int ANY_DEGREE = -1;
 	static int R = -1;
@@ -126,6 +124,22 @@ public class Vector {
 	public static Vector proj(Vector u, Vector v) {
 		return Vector.mult(u, Vector.dot(u, v) / Vector.dot(v, v));
 	}
+	
+	public static Vector operate(Vector u, ElementWiseMonoOperation operation) {
+		double[] v = new double[u.deg()];
+		for(int i = 0; i < v.length; i++) {
+			v[i] = operation.transform(u.x(i));
+		}
+		return new Vector(v);
+	}
+	
+	public static Vector operate(Vector u,Vector v, ElementWiseOperation operation) {
+		double[] x = new double[same_deg(u,v)];
+		for(int i = 0; i < x.length; i++) {
+			x[i] = operation.transform(u.x(i), v.x(i));
+		}
+		return new Vector(x);
+	}
 
 	public static int same_deg(Vector... u) {
 		for (int i = 1; i < u.length; i++) {
@@ -160,6 +174,14 @@ public class Vector {
 		} else {
 			return false;
 		}
+	}
+	
+	public interface ElementWiseMonoOperation{
+		public abstract double transform(double in);
+	}
+	
+	public interface ElementWiseOperation{
+		public abstract double transform(double in1, double in2);
 	}
 
 	public static void main(String[] args) {

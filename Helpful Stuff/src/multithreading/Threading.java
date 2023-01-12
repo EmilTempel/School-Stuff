@@ -108,11 +108,11 @@ public class Threading<In, Out> {
 		JLabel lbl = new JLabel() {
 			protected void paintComponent(Graphics g) {
 				Instant then = Instant.now();
-//				for(int i = 0; i < N; i++) {
-//					g.drawImage(imgs[i], 0,0, i*(frame.getWidth() * N/l), i* (frame.getHeight() * N/l),null);
-//				}
-				t.parallelize(imgs, new Graphics[] {g}, (in, out, n) -> out[0].drawImage(in[n], 0, 0, frame.getWidth(), frame.getHeight(), null));
-				System.out.println(Duration.between(then,Instant.now()).getNano()*10E-9);
+				for(int i = 0; i < N; i++) {
+					g.drawImage(imgs[i], 0,0, i*(frame.getWidth() * N/l), i* (frame.getHeight() * N/l),null);
+				}
+//				t.parallelize(imgs, new Graphics[] {g}, (in, out, n) -> out[0].drawImage(in[n], 0, 0, frame.getWidth(), frame.getHeight(), null));
+				System.out.println(Duration.between(then,Instant.now()).getNano());
 				repaint();
 			}
 		};
