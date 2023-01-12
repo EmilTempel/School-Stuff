@@ -1,11 +1,17 @@
 package geometry;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class Vector {
-	static final int ANY_DEGREE = -1;
-	static int R = -1;
-	double[] x;
+public class Vector implements Iterable<Double>{
+	private static final int ANY_DEGREE = -1;
+	private static int R = -1;
+	private final double[] x;
 
 	public Vector(double... x) {
 		int len = R == ANY_DEGREE ? x.length : R;
@@ -13,6 +19,23 @@ public class Vector {
 		for (int i = 0; i < len; i++) {
 			this.x[i] = i < x.length ? x[i] : 0;
 		}
+	}
+	
+	public Vector(List<Double> x) {
+		int len = R == ANY_DEGREE ? x.size() : R;
+		this.x = new double[len];
+		for (int i = 0; i < len; i++) {
+			this.x[i] = i < x.size() ? x.get(i) : 0;
+		}
+	}
+	
+	public Vector(Stream<Double> x) {
+		this(x.toList());
+	}
+	
+	public Vector(int len) {
+		len = R == ANY_DEGREE ? len : R;
+		this.x = new double[len];
 	}
 
 	public Vector(Vector u) {
@@ -37,6 +60,45 @@ public class Vector {
 
 	public int deg() {
 		return x.length;
+	}
+	
+	public double[] getX() {
+		return x;
+	}
+	 
+	public String toString() {
+		String str = "(";
+		for (int i = 0; i < deg(); i++) {
+			str += x[i] + "|";
+		}
+		return str.substring(0, str.length() - 1) + ")";
+	}
+
+	public boolean equals(Object o) {
+		if (o instanceof Vector) {
+			Vector v = (Vector) o;
+
+			int len = same_deg(this, v);
+			boolean same = len == 0 ? false : true;
+			for (int i = 0; i < len; i++) {
+				if (x(i) != v.x(i)) {
+					same = false;
+					break;
+				}
+			}
+			return same;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public Iterator<Double> iterator() {
+		return new VectorIterator(this);
+	}
+	
+	public Stream<Double> stream(){
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED), false);
 	}
 
 	public static double abs(Vector u) {
@@ -136,32 +198,7 @@ public class Vector {
 		return u[0].deg();
 	}
 
-	public String toString() {
-		String str = "(";
-		for (int i = 0; i < deg(); i++) {
-			str += x[i] + "|";
-		}
-		return str.substring(0, str.length() - 1) + ")";
-	}
-
-	public boolean equals(Object o) {
-		if (o instanceof Vector) {
-			Vector v = (Vector) o;
-
-			int len = same_deg(this, v);
-			boolean same = len == 0 ? false : true;
-			for (int i = 0; i < len; i++) {
-				if (x(i) != v.x(i)) {
-					same = false;
-					break;
-				}
-			}
-			return same;
-		} else {
-			return false;
-		}
-	}
-
+	
 	public static void main(String[] args) {
 		Vector u = new Vector(0, 0, 3);
 		Vector v = new Vector(1, 0, 0);
@@ -169,5 +206,29 @@ public class Vector {
 		System.out.println();
 		System.out.println(dot(c, u));
 		System.out.println(dot(c, v));
+		ArrayList<Integer> list = new ArrayList<>();
+		list.stream();
+	}
+
+	
+	
+	private class VectorIterator implements Iterator<Double>{
+		private Vector v;
+		int c;
+		
+		public VectorIterator(Vector v) {
+			this.v = v;
+			c = 0;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return c < v.deg();
+		}
+
+		@Override
+		public Double next() {
+			return v.x(c++);
+		}
 	}
 }
