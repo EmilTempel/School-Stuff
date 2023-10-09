@@ -1,9 +1,11 @@
 package geometry;
 
+import java.util.Arrays;
+
 public class Vector {
 	static final int ANY_DEGREE = -1;
 	static int R = -1;
-	double[] x;
+	private final double[] x;
 
 	public Vector(double... x) {
 		int len = R == ANY_DEGREE ? x.length : R;
@@ -36,6 +38,10 @@ public class Vector {
 	public int deg() {
 		return x.length;
 	}
+	
+	public double[] getX() {
+		return x;
+	}
 
 	public static double abs(Vector u) {
 		double sum = 0;
@@ -46,7 +52,9 @@ public class Vector {
 	}
 
 	public static Vector add(Vector... u) {
+		System.out.println(Arrays.toString(u));
 		int len = same_deg(u);
+		
 		double[] y = new double[len];
 		for (int j = 0; j < u.length; j++) {
 			for (int i = 0; i < len; i++) {
@@ -57,9 +65,10 @@ public class Vector {
 	}
 
 	public static Vector sub(Vector... u) {
+		Vector[] v = new Vector[u.length];
 		for (int i = 1; i < u.length; i++)
-			u[i] = mult(u[i], -1);
-		return add(u);
+			v[i] = mult(u[i], -1);
+		return add(v);
 	}
 
 	public static Vector mult(Vector u, double s) {
@@ -142,6 +151,9 @@ public class Vector {
 	}
 
 	public static int same_deg(Vector... u) {
+		if(u == null) {
+			return 0;
+		}
 		for (int i = 1; i < u.length; i++) {
 			if (u[i - 1].deg() != u[i].deg()) {
 				return 0;

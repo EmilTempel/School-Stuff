@@ -92,7 +92,7 @@ public class Mesh {
 	}
 
 	public static Mesh MarchingCubes(Vector s, double l, int n, function f) {
-		double d_x = l / (double) n;
+		double d_x = l / (double) (n+1);
 		System.out.println(d_x);
 		Vector[][][] points = new Vector[n][n][n];
 		double[][][] values = new double[n][n][n];
@@ -103,6 +103,7 @@ public class Mesh {
 				for (int k = 0; k < n; k++) {
 					points[i][j][k] = new Vector(s.x(0) + i * d_x, s.x(1) + j * d_x, s.x(2) + k * d_x);
 					values[i][j][k] = f.calc(points[i][j][k]);
+					
 				}
 			}
 		}
@@ -129,12 +130,13 @@ public class Mesh {
 
 						int[] v1 = cube[connectingVertices[e][0]];
 						int[] v2 = cube[connectingVertices[e][1]];
+						System.out.println(points[i + v2[0]][j + v2[1]][k + v2[2]] + "  " + points[i + v1[0]][j + v1[1]][k + v1[2]]);
 						Vector norm = Vector.sub(points[i + v2[0]][j + v2[1]][k + v2[2]],
 								points[i + v1[0]][j + v1[1]][k + v1[2]]);
 						double val1 = values[i + v1[0]][j + v1[1]][k + v1[2]];
 						double val2 = values[i + v2[0]][j + v2[1]][k + v2[2]];
 						double interpolation_factor = (0 - val1) / (val2 - val1);
-
+						
 						interpolated_edgepoint[e] = Vector.add(points[i + v1[0]][j + v1[1]][k + v1[2]],
 								Vector.mult(norm, interpolation_factor));
 					}
