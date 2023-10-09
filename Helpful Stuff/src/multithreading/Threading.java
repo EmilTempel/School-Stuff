@@ -91,7 +91,7 @@ public class Threading<In, Out> {
 
 	public static void main(String[] args) {
 		Threading<BufferedImage, Graphics> t = new Threading<BufferedImage, Graphics>();
-		int N = 1000, l = 16;
+		int N = 10, l = 16;
 		
 		BufferedImage[] imgs = new BufferedImage[N];
 		for(int i = 0; i < N; i++) {
@@ -108,11 +108,11 @@ public class Threading<In, Out> {
 		JLabel lbl = new JLabel() {
 			protected void paintComponent(Graphics g) {
 				Instant then = Instant.now();
-				for(int i = 0; i < N; i++) {
-					g.drawImage(imgs[i], 0,0, i*(frame.getWidth() * N/l), i* (frame.getHeight() * N/l),null);
-				}
-//				t.parallelize(imgs, new Graphics[] {g}, (in, out, n) -> out[0].drawImage(in[n], 0, 0, frame.getWidth(), frame.getHeight(), null));
-				System.out.println(Duration.between(then,Instant.now()).getNano());
+//				for(int i = 0; i < N; i++) {
+//					g.drawImage(imgs[i], 0,0, i*(frame.getWidth() * N/l), i* (frame.getHeight() * N/l),null);
+//				}
+				t.parallelize(imgs, new Graphics[] {g}, (in, out, n) -> out[0].drawImage(in[n], 0, 0, frame.getWidth(), frame.getHeight(), null));
+				System.out.println(Duration.between(then,Instant.now()).getNano()*10E-9);
 				repaint();
 			}
 		};
