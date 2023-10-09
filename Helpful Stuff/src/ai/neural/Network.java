@@ -1,7 +1,6 @@
 package ai.neural;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -55,7 +54,9 @@ public class Network implements Serializable {
 
 //		System.out.println(Arrays.toString(network.calc(new double[] { 0.9, 0 })));
 
-//		Network network = new Network(leakyReLU, 0.0001, new int[] { 16, 128, 16 });
+		int bitCount = 16;
+
+//		Network network = new Network(leakyReLU, 0.0001, new int[] { bitCount, 64, 64, bitCount });
 //		network.init(-0.3, 0.3);
 		FileInputStream fileInputStream;
 		Network network = null;
@@ -63,7 +64,7 @@ public class Network implements Serializable {
 			fileInputStream = new FileInputStream("test");
 			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 			network = (Network) objectInputStream.readObject();
-
+			objectInputStream.close();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -74,11 +75,11 @@ public class Network implements Serializable {
 		Function<Double, Double> funct = a -> Math.pow(2, a);
 		double[] input = { 3 };
 
-		network.train(funct, 10000000, 1, 0, 100, 16);
+		network.train(funct, 100000, 1, 0, 10, bitCount);
 
-		for (int i = 0; i < 100; i++) {
-			double[] in = Functions.toDouble(Functions.toBIN(i, 16));
-			System.out.println(i + "*" + i + ": ");
+		for (int i = 0; i < 10; i++) {
+			double[] in = Functions.toDouble(Functions.toBIN(i, bitCount));
+			System.out.println("2^" + i + ": ");
 			System.out.println(
 					Functions.toDEX(Arrays.stream(network.calc(in)).mapToInt(e -> (int) Math.round(e)).toArray()));
 		}

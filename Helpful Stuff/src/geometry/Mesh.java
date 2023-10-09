@@ -92,7 +92,7 @@ public class Mesh {
 	}
 
 	public static Mesh MarchingCubes(Vector s, double l, int n, function f) {
-		double d_x = l / (double) n;
+		double d_x = l / (double) (n);
 		System.out.println(d_x);
 		Vector[][][] points = new Vector[n][n][n];
 		double[][][] values = new double[n][n][n];

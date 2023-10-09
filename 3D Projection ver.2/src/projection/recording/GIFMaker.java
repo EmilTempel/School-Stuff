@@ -19,7 +19,9 @@ public class GIFMaker {
 
 	public static void main(String[] args) {
 		Mesh m = Mesh.MarchingCubes(new Vector(5, 5, 5), -10, 20, v -> (Math.cos(v.x()) * Math.cos(v.y()) - v.z()));
-
+		
+		System.out.println(m.getVertices());
+		
 		CircularPath c = new CircularPath(new Vector(0, 0, 0), 20, 5, 400);
 
 		try {

@@ -91,7 +91,7 @@ public class Threading<In, Out> {
 
 	public static void main(String[] args) {
 		Threading<BufferedImage, Graphics> t = new Threading<BufferedImage, Graphics>();
-		int N = 1000, l = 16;
+		int N = 10, l = 16;
 		
 		BufferedImage[] imgs = new BufferedImage[N];
 		for(int i = 0; i < N; i++) {

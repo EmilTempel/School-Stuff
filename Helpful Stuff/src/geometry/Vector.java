@@ -191,7 +191,7 @@ public class Vector implements Iterable<Double>{
 
 	public static int same_deg(Vector... u) {
 		for (int i = 1; i < u.length; i++) {
-			if (u[i - 1].deg() != u[i].deg()) {
+			if (u[i] == null || u[i - 1].deg() != u[i].deg()) {
 				return 0;
 			}
 		}

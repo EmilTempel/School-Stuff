@@ -35,13 +35,13 @@ public class GUI {
 		double r = 1;
 
 
-//		Mesh m = Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> v.x()*v.x()+v.y()*v.y()-3);
+		Mesh m = Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> v.x()*v.x()+v.y()*v.y()-3);
 //		m.addMesh(Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> Vector.dot(Vector.sub(v,new Vector(-1,0,-3.5)), Vector.sub(v,new Vector(-1,0,0)))-r));
 //		Mesh m = Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> 0);
-//		Mesh m = Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> Math.pow((Vector.dot(v, v)-R*R-r*r),2)-4*R*R*(v.x()*v.x()+v.y()*v.y()) );
+//		Mesh m = Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> Math.pow((Vector.dot(v, v)-R*R-r*r),2)+4*R*R*(v.x()*v.x()+v.y()*v.y()) );
 //		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> Math.tan(v.x(0))*Math.exp(v.x(1)) -v.x(2));
-		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> (Math.cos(v.x())*Math.cos(v.y())-v.z()));
-//		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> v.x(1)*Math.pow(v.x(0), 3)-v.x(0)*Math.pow(v.x(1), 3) -v.x(2));
+//		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> (Math.cos(v.x())*Math.cos(v.y())-v.z()));
+//		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> );
 //		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 20, v -> (v.x(0)-3) * (v.x(0)+3) * (v.x(1)-3) * (v.x(1)+3) * (v.x(2)-3) * (v.x(2)+3));
 //		Mesh m =  Mesh.MarchingCubes(new Vector(5,5,5), -10, 40, v -> v.x()*v.x() + v.y() * v.x() - 1 - v.z());
 //		Mesh m = new Polytope(new Vector(5, -20, 5), -10, -10, -10).calcFaces();
@@ -51,8 +51,8 @@ public class GUI {
 			Vector w = new Vector(-1, 0, 0);
 
 			protected void paintComponent(Graphics g) {
-				PoV.setS(Vector.mult(Vector.norm(Vector.add(PoV.getS(), Vector.mult(Vector.norm(Vector.cross(u,w)),0.1))), 20));
-				PoV.SetR(Vector.norm(PoV.getS()));
+//				PoV.setS(Vector.mult(Vector.norm(Vector.add(PoV.getS(), Vector.mult(Vector.norm(Vector.cross(u,w)),0.1))), 20));
+//				PoV.SetR(Vector.norm(PoV.getS()));
 				
 				g.setColor(Color.DARK_GRAY);
 				g.fillRect(0, 0, width, width);
