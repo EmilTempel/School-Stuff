@@ -165,7 +165,7 @@ public class RegisterMachine {
 	}
 
 	public void JLT(int n) {
-		if (A >= 0) {
+		if (A < 0) {
 			JUMP(n);
 		} else {
 			BZ++;

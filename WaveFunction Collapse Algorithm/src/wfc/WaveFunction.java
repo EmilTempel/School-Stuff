@@ -178,7 +178,7 @@ public class WaveFunction {
 
 	public boolean isCollapsed() {
 		for (int i = 0; i < W.length; i++) {
-			if (W[i].entropy() != 0) {
+			if (H[i] != 0) {
 				return false;
 			}
 		}
@@ -346,7 +346,6 @@ public class WaveFunction {
 	}
 
 	public static void main(String[] args) {
-		
 		JFrame frame = new JFrame();
 		frame.setSize(500, 500);
 
